@@ -1,0 +1,123 @@
+steps:
+# Build the container image
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['build', '-t', 'gcr.io/$PROJECT_ID/cloud-case-study-scraper', '.']
+
+# Push the container image to Container Registry
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['push', 'gcr.io/$PROJECT_ID/cloud-case-study-scraper']
+
+# Deploy container image to Cloud Run
+- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  entrypoint: gcloud
+  args:
+  - 'run'
+  - 'deploy'
+  - 'cloud-case-study-scraper'
+  - '--image'
+  - 'gcr.io/$PROJECT_ID/cloud-case-study-scraper'
+  - '--platform'
+  - 'managed'
+  - '--region'
+  - 'us-central1'
+  - '--memory'
+  - '2Gi'
+  - '--cpu'
+  - '1'
+  - '--timeout'
+  - '3600'
+  - '--concurrency'
+  - '1'
+  - '--set-env-vars'
+  - 'STORAGE_BUCKET=${_STORAGE_BUCKET},AUTO_START_SCHEDULER=true'
+  - '--service-account'
+  - '${_SERVICE_ACCOUNT}'
+  - '--no-allow-unauthenticated'
+
+# Create Cloud Scheduler job for AWS scraping (daily at 2 AM)
+- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  entrypoint: gcloud
+  args:
+  - 'scheduler'
+  - 'jobs'
+  - 'create'
+  - 'http'
+  - 'aws-case-study-scraper'
+  - '--schedule'
+  - '0 2 * * *'
+  - '--time-zone'
+  - 'UTC'
+  - '--uri'
+  - 'https://cloud-case-study-scraper-${_REGION_TAG}.a.run.app/scrape?provider=aws&max-pages=3'
+  - '--http-method'
+  - 'POST'
+  - '--oidc-service-account-email'
+  - '${_SERVICE_ACCOUNT}'
+  - '--oidc-token-audience'
+  - 'https://cloud-case-study-scraper-${_REGION_TAG}.a.run.app'
+  - '--attempt-deadline'
+  - '3600s'
+  - '--description'
+  - 'Scrape AWS case studies daily at 2 AM (up to page 3)'
+
+# Create Cloud Scheduler job for GCP scraping (daily at 3 AM)
+- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  entrypoint: gcloud
+  args:
+  - 'scheduler'
+  - 'jobs'
+  - 'create'
+  - 'http'
+  - 'gcp-case-study-scraper'
+  - '--schedule'
+  - '0 3 * * *'
+  - '--time-zone'
+  - 'UTC'
+  - '--uri'
+  - 'https://cloud-case-study-scraper-${_REGION_TAG}.a.run.app/scrape?provider=gcp&max-pages=2'
+  - '--http-method'
+  - 'POST'
+  - '--oidc-service-account-email'
+  - '${_SERVICE_ACCOUNT}'
+  - '--oidc-token-audience'
+  - 'https://cloud-case-study-scraper-${_REGION_TAG}.a.run.app'
+  - '--attempt-deadline'
+  - '3600s'
+  - '--description'
+  - 'Scrape GCP case studies daily at 3 AM (up to page 2)'
+
+# TEMPORARILY DISABLED: Create Cloud Scheduler job for embedding (daily at 4 AM)
+# This job is commented out until the embedding logic is fully implemented
+# Uncomment this section when embedding functionality is ready
+# - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+#   entrypoint: gcloud
+#   args:
+#   - 'scheduler'
+#   - 'jobs'
+#   - 'create'
+#   - 'http'
+#   - 'case-study-embedder'
+#   - '--schedule'
+#   - '0 4 * * *'
+#   - '--time-zone'
+#   - 'UTC'
+#   - '--uri'
+#   - 'https://cloud-case-study-scraper-${_REGION_TAG}.a.run.app/embed'
+#   - '--http-method'
+#   - 'POST'
+#   - '--oidc-service-account-email'
+#   - '${_SERVICE_ACCOUNT}'
+#   - '--oidc-token-audience'
+#   - 'https://cloud-case-study-scraper-${_REGION_TAG}.a.run.app'
+#   - '--attempt-deadline'
+#   - '3600s'
+#   - '--description'
+#   - 'Embed case studies daily at 4 AM'
+
+images:
+- 'gcr.io/$PROJECT_ID/cloud-case-study-scraper'
+
+substitutions:
+  _REGION_TAG: us-central1
+  _STORAGE_BUCKET: cloud-case-studies-data
+  _SERVICE_ACCOUNT: cloud-case-study-scraper@${PROJECT_ID}.iam.gserviceaccount.com 

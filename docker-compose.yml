@@ -1,0 +1,22 @@
+version: '3'
+
+services:
+  scraper:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+      - AUTO_START_SCHEDULER=true
+      # Uncomment and set this if you have a GCS bucket
+      # - STORAGE_BUCKET=your-bucket-name
+      # - GOOGLE_APPLICATION_CREDENTIALS=/app/credentials.json
+    volumes:
+      # Uncomment if you have Google Cloud credentials
+      # - ./credentials.json:/app/credentials.json:ro
+      - ./AWS:/app/AWS
+      - ./GCP:/app/GCP
+      - ./backup:/app/backup
+      - ./database:/app/database
+      - ./logs:/app/logs
+    restart: unless-stopped 
