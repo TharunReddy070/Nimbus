@@ -48,16 +48,25 @@ The embedding functionality is temporarily disabled until the embedding logic is
 1. **Google Cloud Account and Project**:
    - Create a Google Cloud account if you don't have one
    - Create a new project or select an existing one
-   - Enable the following APIs:
+
+2. **Set Up Billing Account** (CRITICAL):
+   - Go to Billing in the Google Cloud Console
+   - Create a new billing account if you don't have one
+   - Link your billing account to your project
+   - Note: You cannot enable most Google Cloud services without an active billing account
+   - New users are eligible for $300 in free credits for 90 days
+
+3. **Enable Required APIs**:
+   - After setting up billing, enable the following APIs:
      - Cloud Run API
      - Cloud Build API
      - Cloud Scheduler API
      - Cloud Storage API
 
-2. **Install Google Cloud SDK**:
+4. **Install Google Cloud SDK**:
    - Follow the instructions at https://cloud.google.com/sdk/docs/install
 
-3. **Create a Service Account**:
+5. **Create a Service Account**:
    - Go to IAM & Admin > Service Accounts
    - Create a new service account with the following roles:
      - Cloud Run Admin
@@ -66,7 +75,7 @@ The embedding functionality is temporarily disabled until the embedding logic is
      - Service Account User
    - Download the JSON key file
 
-4. **Create a Cloud Storage Bucket**:
+6. **Create a Cloud Storage Bucket**:
    - Go to Cloud Storage > Buckets
    - Create a new bucket for storing your data
    - Note the bucket name for configuration
