@@ -1,26 +1,23 @@
 from db_manager import DatabaseManager
 import time
+import asyncio
 
-def process_embeddings(batch_size=5, provider=None):
-    """Example function to process embeddings for unembedded case studies"""
+async def process_embeddings(provider=None, batch_size=5):
+    """Process embeddings for unembedded case studies"""
     db = DatabaseManager()
     
     # Get unembedded case studies
     unembedded = db.get_unembedded_case_studies(provider, limit=batch_size)
     
     if not unembedded:
-        provider_msg = f"for {provider}" if provider else ""
-        print(f"No unembedded case studies found {provider_msg}.")
-        return
+        return 0
     
-    print(f"Processing embeddings for {len(unembedded)} case studies{' for ' + provider if provider else ''}...")
+    processed_count = 0
     
     for study in unembedded:
-        id = study[0]
-        provider = study[1]
-        content = study[5]
-        
-        print(f"Processing embedding for {provider} case study {id}...")
+        id = study['id']
+        provider = study['provider']
+        content = study['content']
         
         # Here you would implement your actual embedding logic
         # For example:
@@ -28,14 +25,14 @@ def process_embeddings(batch_size=5, provider=None):
         # store_embedding_somewhere(id, embedding)
         
         # Simulate embedding process
-        time.sleep(1)
+        await asyncio.sleep(0.5)
         
         # Update the embedding status in the database
-        db.update_embedding_status(id, is_embedded=1)
-        print(f"Updated embedding status for {provider} case study {id}")
+        db.mark_as_embedded(provider, id)
+        processed_count += 1
     
-    print("Embedding process completed.")
     db.close()
+    return processed_count
 
 if __name__ == "__main__":
     import sys
@@ -44,14 +41,19 @@ if __name__ == "__main__":
     provider = None
     batch_size = 5
     
-    for i, arg in enumerate(sys.argv[1:], 1):
-        if arg == "--provider" and i < len(sys.argv):
+    i = 1
+    while i < len(sys.argv):
+        if sys.argv[i] == "--provider" and i+1 < len(sys.argv):
             provider = sys.argv[i+1]
-        elif arg == "--batch-size" and i < len(sys.argv):
+            i += 2
+        elif sys.argv[i] == "--batch-size" and i+1 < len(sys.argv):
             try:
                 batch_size = int(sys.argv[i+1])
+                i += 2
             except ValueError:
                 print(f"Invalid batch size: {sys.argv[i+1]}")
-                batch_size = 5
+                i += 2
+        else:
+            i += 1
     
-    process_embeddings(batch_size, provider) 
+    asyncio.run(process_embeddings(provider, batch_size)) 

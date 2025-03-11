@@ -1,24 +1,9 @@
 import asyncio
-import csv
 import os
 import sys
-import logging
 import pandas as pd
-import shutil
 from pathlib import Path
 from playwright.async_api import async_playwright
-import traceback
-
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(),
-        logging.FileHandler("gcp_links.log")
-    ]
-)
-logger = logging.getLogger('gcp_links')
 
 async def scrape_case_studies(max_pages=2, provider="GCP", skip_count=18):
     """
@@ -32,8 +17,6 @@ async def scrape_case_studies(max_pages=2, provider="GCP", skip_count=18):
     Returns:
         Number of new links saved
     """
-    logger.info(f"Starting to scrape {provider} case studies (max page: {max_pages}, skip_count: {skip_count})")
-    
     # Create directory structure
     base_dir = Path(provider.upper())
     base_dir.mkdir(exist_ok=True)
@@ -54,17 +37,13 @@ async def scrape_case_studies(max_pages=2, provider="GCP", skip_count=18):
             # Add is_processed column if it doesn't exist
             if 'is_processed' not in existing_df.columns:
                 existing_df['is_processed'] = False
-                logger.info("Added is_processed column to existing CSV")
             
             # Add page_number column if it doesn't exist
             if 'page_number' not in existing_df.columns:
                 existing_df['page_number'] = 1  # Default to page 1 for existing entries
-                logger.info("Added page_number column to existing CSV")
             
             existing_links = existing_df['link'].tolist()
-            logger.info(f"Found {len(existing_links)} existing links in {csv_file}")
-        except Exception as e:
-            logger.error(f"Error reading existing CSV: {str(e)}")
+        except Exception:
             # Create a new DataFrame if there was an error
             existing_df = pd.DataFrame(columns=['link', 'page_number', 'is_processed'])
     else:
@@ -91,8 +70,6 @@ async def scrape_case_studies(max_pages=2, provider="GCP", skip_count=18):
         # Add initial links
         for link in links:
             all_case_study_links.append((current_page, link))  # Store page number with link
-            
-        logger.info(f"Found {len(all_case_study_links)} links on initial page load (Page {current_page})")
 
         # Click the "More" button until we reach max_pages
         while current_page < max_pages:
@@ -103,7 +80,6 @@ async def scrape_case_studies(max_pages=2, provider="GCP", skip_count=18):
                 await page.wait_for_timeout(3000)  # Wait longer for the new content to load
                 await page.wait_for_load_state('networkidle')  # Wait for network to be idle
                 current_page += 1  # Increment page count
-                logger.info(f"Clicked 'More' button - Now on Page {current_page}/{max_pages}")
                 
                 # Extract new links after clicking "More"
                 links = await page.eval_on_selector_all(
@@ -111,33 +87,21 @@ async def scrape_case_studies(max_pages=2, provider="GCP", skip_count=18):
                     "elements => elements.map(element => element.href)"
                 )
                 
-                # Count links before adding new ones
-                prev_count = len(all_case_study_links)
-                
                 # Add only new links while maintaining order
                 for link in links:
                     if link not in [l for _, l in all_case_study_links]:
                         all_case_study_links.append((current_page, link))  # Store page number with link
-                
-                # Count how many new links were added
-                new_count = len(all_case_study_links) - prev_count
-                logger.info(f"Found {new_count} new links on Page {current_page}")
-                logger.info(f"Total links so far: {len(all_case_study_links)}")
             else:
-                logger.info("No more 'More' button found.")
                 break
 
         # Process links, skipping the first 18
         if skip_count > 0:
             filtered_links = all_case_study_links[skip_count:]
-            logger.info(f"Skipping first {skip_count} case studies, processing {len(filtered_links)} links")
         else:
             filtered_links = all_case_study_links
-            logger.info(f"Processing all {len(filtered_links)} case study links")
 
         # Filter out existing links
         new_links = [(page_num, link) for page_num, link in filtered_links if link not in existing_links]
-        logger.info(f"After filtering existing links, {len(new_links)} new links remain")
 
         # Save new links to CSV
         if new_links:
@@ -153,15 +117,10 @@ async def scrape_case_studies(max_pages=2, provider="GCP", skip_count=18):
             
             # Save the combined DataFrame
             combined_df.to_csv(csv_file, index=False)
-            
-            logger.info(f"Saved {len(new_links)} new {provider} case study links to CSV file {csv_file}")
         else:
-            logger.info(f"No new {provider} case study links to save")
-            
             # If we have an existing DataFrame but no new links, still save it to ensure columns are added
             if existing_df is not None:
                 existing_df.to_csv(csv_file, index=False)
-                logger.info(f"Updated existing CSV file with required columns")
 
         await browser.close()
         
@@ -181,17 +140,13 @@ async def main(max_pages=2):
         # If called from scheduler, don't skip any links
         skip_count = 0 if from_scheduler else 18
         
-        logger.info(f"Starting GCP case study link scraping (max page: {max_pages}, skip_count: {skip_count})")
-        
         # Run the scraper
         num_links = await scrape_case_studies(max_pages=max_pages, provider="GCP", skip_count=skip_count)
         
-        logger.info(f"Successfully scraped {num_links} new GCP case study links")
+        return num_links
         
-    except Exception as e:
-        logger.error(f"Error in main function: {str(e)}")
-        logger.error(traceback.format_exc())
-        raise
+    except Exception:
+        return 0
 
 if __name__ == "__main__":
     asyncio.run(main())
