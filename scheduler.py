@@ -9,6 +9,8 @@ from AWS_links import main as aws_links_main
 from AWS_casestudies import main as aws_casestudies_main
 from gcloud_links import main as gcp_links_main
 from gcloud_casestudies import main as gcp_casestudies_main
+from azure_links import main as azure_links_main
+from azure_casestudies import main as azure_casestudies_main
 from embedding_example import process_embeddings
 import os
 
@@ -24,7 +26,7 @@ logging.basicConfig(
 logger = logging.getLogger("cloud_case_study_scheduler")
 
 # Define supported providers
-PROVIDERS = ["aws", "gcp"]
+PROVIDERS = ["aws", "gcp", "azure"]
 
 async def scrape_pipeline(provider="aws", max_pages=None):
     """Run the complete scraping pipeline for a specific provider"""
@@ -32,7 +34,13 @@ async def scrape_pipeline(provider="aws", max_pages=None):
     if max_pages is None:
         # For AWS: max_pages is the number of pages to scrape
         # For GCP: max_pages is the maximum page number to reach
-        max_pages = 3 if provider.lower() == "aws" else 2
+        # For Azure: max_pages is the maximum page number to reach
+        if provider.lower() == "aws":
+            max_pages = 3
+        elif provider.lower() == "gcp":
+            max_pages = 2
+        else:  # azure
+            max_pages = 3
         
     logger.info(f"Starting {provider} scraping pipeline at {datetime.now()}")
     
@@ -50,6 +58,8 @@ async def scrape_pipeline(provider="aws", max_pages=None):
         new_links = await aws_links_main(max_pages)
     elif provider.lower() == "gcp":
         new_links = await gcp_links_main(max_pages)
+    elif provider.lower() == "azure":
+        new_links = await azure_links_main(1, max_pages, "Azure")  # start_page=1, max_pages=max_pages, search_query="Azure"
     else:
         logger.error(f"Unsupported provider: {provider}")
         return
@@ -60,6 +70,8 @@ async def scrape_pipeline(provider="aws", max_pages=None):
         await aws_casestudies_main()
     elif provider.lower() == "gcp":
         await gcp_casestudies_main()
+    elif provider.lower() == "azure":
+        await azure_casestudies_main()
     
     # Reset environment variable
     os.environ['FROM_SCHEDULER'] = 'false'
@@ -106,11 +118,19 @@ def start_scheduler():
     )
     logger.info("Scheduled GCP scraping: Daily at 03:00 AM (up to page 2)")
     
-    # TEMPORARILY DISABLED: Schedule embedding daily at 4:00 AM
+    # Schedule Azure scraping daily at 4:00 AM
+    schedule.every().day.at("04:00").do(
+        run_scrape_pipeline, 
+        provider="azure",
+        max_pages=3
+    )
+    logger.info("Scheduled Azure scraping: Daily at 04:00 AM (up to page 3)")
+    
+    # TEMPORARILY DISABLED: Schedule embedding daily at 5:00 AM
     # This job is commented out until the embedding logic is fully implemented
     # Uncomment this section when embedding functionality is ready
-    # schedule.every().day.at("04:00").do(run_embedding_pipeline)
-    # logger.info("Scheduled embedding: Daily at 04:00 AM")
+    # schedule.every().day.at("05:00").do(run_embedding_pipeline)
+    # logger.info("Scheduled embedding: Daily at 05:00 AM")
     
     logger.info("Scheduler is running. Press Ctrl+C to exit.")
     
@@ -160,7 +180,7 @@ if __name__ == "__main__":
     action_group.add_argument("--embed", action="store_true", help="Run immediate embedding")
     
     # Optional arguments
-    parser.add_argument("--provider", choices=PROVIDERS, help="Specify provider (aws or gcp)")
+    parser.add_argument("--provider", choices=PROVIDERS, help="Specify provider (aws, gcp, or azure)")
     parser.add_argument("--max-pages", type=int, help="Maximum pages to scrape")
     parser.add_argument("--batch-size", type=int, help="Batch size for embedding")
     

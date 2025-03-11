@@ -58,6 +58,12 @@ class DatabaseManager:
         ''', (id, provider, link, pdf_path, txt_path, content, is_embedded))
         self.conn.commit()
     
+    def insert_case_study(self, provider, link, pdf_path, txt_path, content, is_embedded=0):
+        """Insert a new case study into the database with the next available ID"""
+        id = self.get_next_id(provider)
+        self.save_content(id, provider, link, pdf_path, txt_path, content, is_embedded)
+        return id
+    
     def get_last_id(self, provider):
         """Get the highest ID from the database for a specific provider"""
         try:
@@ -70,6 +76,11 @@ class DatabaseManager:
         except Exception as e:
             print(f"Error retrieving last ID from database for provider {provider}: {str(e)}")
             return 0
+    
+    def get_next_id(self, provider):
+        """Get the next available ID for a specific provider"""
+        last_id = self.get_last_id(provider)
+        return last_id + 1
     
     def get_case_studies(self, provider=None, limit=None):
         """Get case studies with newest first, optionally filtered by provider"""
