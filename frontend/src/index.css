@@ -1,0 +1,633 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+
+    --primary: 240 50% 50%; /* Changed to purple tone */
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --accent: 240 40% 96.1%; /* Changed to match primary */
+    --accent-foreground: 222.2 47.4% 11.2%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 240 50% 50%; /* Changed to match primary */
+
+    --radius: 0.75rem;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 50% 50%; /* Changed to match primary */
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 240 50% 50%; /* Changed to match primary */
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 240 60% 65%; /* Changed to purple tone for dark mode */
+    --primary-foreground: 222.2 47.4% 11.2%;
+
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 240 60% 65%; /* Changed to match primary for dark mode */
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 240 60% 65%; /* Changed to match primary for dark mode */
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    @apply overflow-x-hidden scroll-smooth;
+    height: 100%;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans overflow-x-hidden;
+    font-family: 'Inter', sans-serif;
+    height: 100%;
+  }
+
+  /* Custom scrollbar styles */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-gray-300 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-gray-400;
+  }
+  
+  /* Prose styles for the canvas content */
+  .prose {
+    @apply text-gray-800 leading-relaxed;
+  }
+  
+  .prose h1 {
+    @apply text-2xl font-bold mb-4 mt-6 text-gray-900;
+  }
+  
+  .prose h2 {
+    @apply text-xl font-semibold mb-3 mt-5 text-gray-900;
+  }
+  
+  .prose h3 {
+    @apply text-lg font-semibold mb-3 mt-5 text-gray-900;
+  }
+  
+  .prose p {
+    @apply mb-4;
+  }
+  
+  .prose a {
+    @apply text-primary hover:text-primary/80 transition-colors;
+  }
+  
+  .prose ul {
+    @apply list-disc pl-6 mb-4;
+  }
+  
+  .prose ol {
+    @apply list-decimal pl-6 mb-4;
+  }
+  
+  .prose pre {
+    @apply bg-gray-800 text-gray-100 p-3 rounded-md my-4 overflow-x-auto;
+  }
+  
+  .prose code {
+    @apply font-mono;
+  }
+
+  /* Text gradient */
+  .text-gradient {
+    @apply bg-gradient-to-r from-primary to-indigo-600 bg-clip-text text-transparent;
+  }
+}
+
+@layer components {
+  .chat-container {
+    @apply relative flex flex-col h-screen overflow-hidden bg-gray-50 dark:bg-gray-900;
+  }
+  
+  .chat-header {
+    @apply sticky top-0 z-30 flex items-center justify-between px-4 py-3 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm backdrop-blur-lg bg-opacity-90 dark:bg-opacity-90;
+  }
+  
+  .chat-messages-container {
+    @apply flex-1 w-full overflow-hidden relative;
+    background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%239C92AC' fill-opacity='0.03' fill-rule='evenodd'/%3E%3C/svg%3E");
+  }
+  
+  .chat-messages {
+    @apply absolute inset-0 px-4 sm:px-6 md:px-8 pb-32 pt-6 overflow-y-auto;
+    scroll-behavior: smooth;
+  }
+  
+  .chat-message {
+    @apply flex flex-col mb-6 animate-fade-in;
+  }
+  
+  .message-bubble {
+    @apply rounded-2xl px-5 py-3.5 shadow-sm relative;
+    transition: transform 0.2s ease-out;
+    width: calc(100% - 40px); /* Account for avatar width and gap */
+  }
+
+  .message-bubble:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  }
+
+  .user-message {
+    @apply bg-primary/10 text-gray-900 dark:text-gray-100 border border-primary/20;
+  }
+
+  .ai-message {
+    @apply bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700;
+  }
+  
+  .chat-input-container {
+    @apply fixed px-4 sm:px-6 md:px-8 py-4 bottom-0 left-0 right-0 bg-gradient-to-t from-gray-50 via-gray-50 to-transparent dark:from-gray-900 dark:via-gray-900 z-20;
+  }
+  
+  .chat-input-wrapper {
+    @apply relative flex flex-col w-full max-w-3xl mx-auto rounded-xl shadow-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-primary/30 focus-within:border-primary/50 focus-within:ring-2 focus-within:ring-primary/20 transition-all duration-200;
+  }
+
+  .chat-input-wrapper textarea {
+    @apply bg-transparent text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400 p-3 rounded-t-xl;
+    resize: none;
+    min-height: 56px;
+    max-height: 200px;
+    transition: all 0.2s ease;
+  }
+
+  .chat-input-wrapper textarea:focus {
+    @apply outline-none;
+  }
+
+  .chat-toolbar {
+    @apply flex items-center justify-between px-3 py-2 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 rounded-b-xl;
+  }
+
+  .chat-toolbar-button {
+    @apply p-2 rounded-full text-gray-500 hover:text-primary hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors;
+  }
+
+  .chat-send-button {
+    @apply flex items-center justify-center px-4 py-2 rounded-lg bg-primary text-white font-medium hover:bg-primary/90 active:bg-primary/95 transition-all duration-200 ease-out shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .chat-welcome {
+    @apply flex flex-col items-center justify-center flex-grow px-4;
+    background-image: radial-gradient(circle at 50% 50%, rgba(99, 102, 241, 0.05) 0%, transparent 70%);
+  }
+
+  .chat-welcome-title {
+    @apply text-4xl font-bold mb-6 text-center;
+    line-height: 1.2;
+    background-image: linear-gradient(to right, var(--tw-gradient-stops));
+    --tw-gradient-from: var(--primary);
+    --tw-gradient-to: rgb(79 70 229);
+    --tw-gradient-stops: var(--tw-gradient-from), rgb(168 85 247), var(--tw-gradient-to);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .chat-welcome-subtitle {
+    @apply text-xl text-gray-600 dark:text-gray-400 mb-10 text-center max-w-2xl;
+  }
+
+  .chat-templates {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-4xl mx-auto;
+  }
+
+  .chat-template-card {
+    @apply p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-primary/30 hover:shadow-md transition-all duration-200 cursor-pointer;
+  }
+
+  .chat-template-card:hover {
+    transform: translateY(-2px);
+  }
+
+  .chat-template-title {
+    @apply font-medium text-gray-900 dark:text-gray-100 mb-2;
+  }
+
+  .chat-template-description {
+    @apply text-sm text-gray-500 dark:text-gray-400;
+  }
+
+  /* Message timestamp and actions */
+  .message-meta {
+    @apply flex justify-between items-center mt-1 px-1 text-xs text-gray-400;
+  }
+
+  .message-actions {
+    @apply flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity;
+  }
+
+  .message-action-button {
+    @apply p-1 rounded text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors;
+  }
+
+  /* File attachments */
+  .file-preview {
+    @apply flex flex-wrap gap-2 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-t-xl;
+  }
+
+  .file-preview-item {
+    @apply relative rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700;
+  }
+
+  .file-preview-item {
+    position: relative;
+  }
+
+  .file-preview-item.group {
+    /* This is just a placeholder to add the group class */
+  }
+
+  .file-preview-remove {
+    @apply absolute top-1 right-1 p-1 rounded-full bg-gray-900/70 text-white opacity-0 transition-opacity;
+  }
+
+  .group:hover .file-preview-remove {
+    opacity: 1;
+  }
+
+  .file-preview-image {
+    @apply max-h-20 w-auto object-cover;
+  }
+
+  .file-preview-document {
+    @apply flex items-center space-x-2 px-3 py-2 bg-gray-100 dark:bg-gray-700 text-sm;
+  }
+
+  /* Add new animations */
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fade-in {
+    animation: fade-in 0.3s ease-out forwards;
+  }
+
+  /* Sidebar styles */
+  .chat-sidebar {
+    @apply fixed inset-y-0 left-0 z-40 w-72 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 transform transition-transform duration-300 ease-in-out;
+  }
+
+  .chat-sidebar-header {
+    @apply flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700;
+  }
+
+  .chat-sidebar-title {
+    @apply text-lg font-semibold text-gray-900 dark:text-gray-100;
+  }
+
+  .chat-sidebar-close {
+    @apply p-2 rounded-full text-gray-500 hover:text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors;
+  }
+
+  .chat-sidebar-content {
+    @apply p-4 overflow-y-auto;
+    height: calc(100vh - 64px);
+  }
+
+  .chat-sidebar-section {
+    @apply mb-6;
+  }
+
+  .chat-sidebar-section-title {
+    @apply text-sm font-medium text-gray-500 uppercase tracking-wider mb-3;
+  }
+
+  .chat-sidebar-button {
+    @apply flex items-center w-full px-3 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors;
+  }
+
+  /* Canvas view */
+  .canvas-view {
+    @apply fixed top-0 right-0 w-full lg:w-1/2 h-screen bg-white dark:bg-gray-900 border-l border-gray-200 dark:border-gray-700 overflow-auto z-10 lg:relative;
+  }
+
+  .canvas-header {
+    @apply sticky top-0 z-10 flex items-center justify-between p-4 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700;
+  }
+
+  .canvas-title {
+    @apply text-lg font-semibold text-gray-900 dark:text-gray-100;
+  }
+
+  .canvas-close {
+    @apply p-2 rounded-full text-gray-500 hover:text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors;
+  }
+
+  .canvas-content {
+    @apply p-6;
+  }
+
+  /* Define gradient-text-primary within a layer */
+  .gradient-text-primary {
+    background-image: linear-gradient(to right, var(--tw-gradient-stops));
+    --tw-gradient-from: var(--primary);
+    --tw-gradient-to: rgb(79 70 229);
+    --tw-gradient-stops: var(--tw-gradient-from), rgb(168 85 247), var(--tw-gradient-to);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    background-size: 200% auto;
+    animation: gradient 6s ease infinite;
+  }
+
+  @keyframes gradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+}
+
+/* Add modern responsive typography */
+@layer base {
+  h1 {
+    @apply text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight;
+  }
+
+  h2 {
+    @apply text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight;
+  }
+
+  h3 {
+    @apply text-2xl md:text-3xl lg:text-4xl font-semibold;
+  }
+
+  .subtitle {
+    @apply text-xl md:text-2xl text-gray-600 leading-relaxed;
+  }
+}
+
+/* Modern container width utilities */
+.container-sm {
+  @apply max-w-4xl mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+.container-md {
+  @apply max-w-5xl mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+.container-lg {
+  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+/* Processing Steps Component Styles */
+.processing-steps {
+  @apply w-full mb-4 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-lg;
+}
+
+.processing-steps-header {
+  @apply flex items-center justify-between p-4 text-sm font-medium text-gray-700 dark:text-gray-300 border-b border-gray-100 dark:border-gray-800;
+}
+
+.processing-steps-content {
+  @apply relative px-6 pb-4 pt-2;
+}
+
+/* Animated flowing line */
+.flowing-line {
+  @apply absolute top-2 w-[2px] bg-gray-100 dark:bg-gray-800;
+  height: calc(100% - 16px);
+  left: 50%; /* Center the line */
+  transform: translateX(-50%); /* Offset by half its width */
+}
+
+.flowing-line-progress {
+  @apply absolute top-0 w-full;
+  background: linear-gradient(to bottom, var(--tw-color-primary) 0%, rgba(99, 102, 241, 0.3) 100%);
+  transition: height 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Step styles */
+.step-item {
+  @apply flex items-start py-3 first:pt-2 last:pb-2 opacity-0;
+  animation: slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.step-dot {
+  @apply relative flex items-center justify-center;
+  width: 24px; /* Fixed width for alignment */
+}
+
+.step-dot-outer {
+  @apply w-[24px] h-[24px] rounded-full bg-white dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-700 flex items-center justify-center;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+}
+
+.step-dot-inner {
+  @apply w-[8px] h-[8px] rounded-full bg-gray-300 dark:bg-gray-600;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Current step styles */
+.step-current .step-dot-outer {
+  @apply border-primary;
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);
+}
+
+.step-current .step-dot-inner {
+  @apply bg-primary;
+}
+
+/* Completed step styles */
+.step-completed .step-dot-outer {
+  @apply border-primary/40 bg-primary/5;
+}
+
+.step-completed .step-dot-inner {
+  @apply bg-primary/80;
+}
+
+/* Step content */
+.step-content {
+  @apply ml-4 pt-1 text-sm text-gray-600 dark:text-gray-400 font-medium flex-1;
+  display: flex;
+  align-items: center;
+  margin-top: 16px;
+}
+
+/* Enhanced animations */
+@keyframes slideIn {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+    box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4);
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+    box-shadow: 0 0 0 6px rgba(99, 102, 241, 0);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+    box-shadow: 0 0 0 0 rgba(99, 102, 241, 0);
+  }
+}
+
+.step-current .step-dot-inner {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Improved collapse/expand transition */
+.steps-collapse-enter {
+  max-height: 0;
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+.steps-collapse-enter-active {
+  max-height: 500px;
+  opacity: 1;
+  transform: translateY(0);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.steps-collapse-exit {
+  max-height: 500px;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.steps-collapse-exit-active {
+  max-height: 0;
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Add custom animations for processing steps */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+/* Add flowing ripple effect animation */
+@keyframes ripple {
+  0% {
+    transform: scale(0.8);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.4);
+    opacity: 0;
+  }
+}
+
+/* Slide in animation for new steps */
+@keyframes slide-in {
+  0% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Water-like flow animation for the line */
+@keyframes flow {
+  0% {
+    height: 0%;
+  }
+  100% {
+    height: 100%;
+  }
+}
