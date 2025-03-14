@@ -1,8 +1,0 @@
-psycopg2-binary
-pandas
-openai
-python-dotenv
-playwright
-asyncio
-PyPDF2
-aiohttp
